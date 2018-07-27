@@ -25,428 +25,359 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package jobHunter
-
-import scalafx.Includes._
-import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.geometry._
-import scalafx.scene.Scene
-import scalafx.scene.control._
-import scalafx.scene.layout._
-import scalafx.event.ActionEvent
-import scalafx.stage.FileChooser
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
-import scalafx.collections.ObservableBuffer
-import scala.util.control.Breaks._
- 
-object JobHunterSBT extends JFXApp {
-    // abstract class Company{
-    //     def companyName:String 
-    //     def contactName:String 
-    //     def contactPhone:String 
-    //     def contactEmail:String
-    //     def status:String
-    //     def notes:String
-    // }
-    // case class TechCompany(
-    //     companyName:String, 
-    //     contactName:String, 
-    //     contactPhone:String, 
-    //     contactEmail:String,
-    //     status:String,
-    //     companyType:String,
-    //     notes:String        
-    // ) extends Company
-    // case class RecruitingCompany(
-    //     companyName:String, 
-    //     contactName:String, 
-    //     contactPhone:String, 
-    //     contactEmail:String,
-    //     status:String,
-    //     companyType:String,
-    //     notes:String       
-    // ) extends Company
-        case class Company(
-        companyName:String, 
-        contactName:String, 
-        contactPhone:String, 
-        contactEmail:String,
-        status:String,
-        companyType:String,
-        notes:String        
+import scalafx.application.JFXApp
+import scalafx.scene.control._
+import scalafx.Includes._
+import scalafx.application.JFXApp.PrimaryStage
+import scalafx.event.ActionEvent
+import scalafx.geometry.Orientation
+import scalafx.scene.Scene
+import scalafx.scene.layout.{BorderPane, FlowPane, GridPane}
+import scalafx.stage.FileChooser
+
+/**
+  * Created by Jengel1 on 7/24/2018.
+  */
+object JobHunterTestObj extends JFXApp {
+    case class Company(
+        companyName: String,
+        contactName: String,
+        contactPhone: String,
+        contactEmail: String,
+        status: String,
+        companyType: String,
+        notes: String
     )
 
+    //dummy data
+    //var company1 = Company("Jared's Fix It!", "Jared", "555-555-5555", "jared@fixit.com", "Applied", "tech", "I really like this guy")
+    //var company3 = Company("Sheesh Burger", "Mia", "888-888-8888", "theMonster@shoe.com", "denied", "recruiter", "Such an attitude!")
+    //var company4 = Company("Eating Good Now", "Ali", "222-222-2222", "ali@thebest.com", "denied", "recruiter", "Of the highest quality!")
+    //var company2 = Company("Guy Electronics", "William", "777-777-7777", "will@theguy.com", "follow up needed", "tech", "What a good guy!")
 
-    // var companies = Array[Company](Company("jared industries", "jared", "555-555-5555", "jared@jared.com", "tech", "applied", "Great Company!"),
-    //     Company("Guy Electronics", "William", "777-777-7777", "will@theguy.com", "tech", "follow up needed", "What a good guy!"),
-    //     Company("Sheesh Burger", "Mia", "888-888-8888", "theMonster@shoe.com", "recruiter", "denied", "Such an attitude!"))
+    //ArrayBuffer holding all Companies
+    val comArray = ArrayBuffer[Company]()
+    //ArrayBuffers sorted into tech companies and recruiters
+    val techArray = ArrayBuffer[Company]()
+    val recArray = ArrayBuffer[Company]()
+
+    //variables to hold index values for selected companies
+    var techIndex = 0
+    var recIndex = 0
+    //ListViews of tech companies and recruiters
+    var techList = new ListView(techArray.map(_.companyName))
+    techList.selectionModel.apply.selectedItems.onChange {
+        techIndex = techList.selectionModel.apply.getSelectedIndex
+        println("selected index: " + techIndex)
+        val company = techArray(techIndex)
+        companyName.text = prop2Str(company.companyName)
+        contactName.text = prop2Str(company.contactName)
+        contactPhone.text = prop2Str(company.contactPhone)
+        contactEmail.text = prop2Str(company.contactEmail)
+        //set status combo box
+        techRB.selected = true  //set company type
+        notes.text = prop2Str(company.notes)
+    }
+    var recList = new ListView(recArray.map(_.companyName))
+    recList.selectionModel.apply.selectedItems.onChange {
+        recIndex = recList.selectionModel.apply.getSelectedIndex
+        println("selected index: " + recIndex)
+        val company = recArray(recIndex)
+        companyName.text = prop2Str(company.companyName)
+        contactName.text = prop2Str(company.contactName)
+        contactPhone.text = prop2Str(company.contactPhone)
+        contactEmail.text = prop2Str(company.contactEmail)
+        //set status combo box
+        recRB.selected = true  //set company type
+        notes.text = prop2Str(company.notes)
+    }
 
     /*
-    //Temp records
-    Company("jared industries", "jared", "555-555-5555", "jared@jared.com", "applied", "Great Company!", "tech")
-    Company("Guy Electronics", "William", "777-777-7777", "will@theguy.com", "follow up needed", "What a good guy!", "tech")
-    Company("Sheesh Burger", "Mia", "888-888-8888", "theMonster@shoe.com", "denied", "Such an attitude!", "recruiter")
-    */
-
-    var allCompanies = Array[Company]()
-
-    var techArray = Array[Company](Company("jared industries", "jared", "555-555-5555", "jared@jared.com", "applied", "tech", "Great Company!"),
-        Company("Guy Electronics", "William", "777-777-7777", "will@theguy.com", "follow up needed", "tech", "What a good guy!")
-    )
-    var recruiterArray = Array[Company](Company("Sheesh Burger", "Mia", "888-888-8888", "theMonster@shoe.com", "denied", "recruiter", "Such an attitude!"),
-        Company("Eating Good Now", "Ali", "222-222-2222", "ali@thebest.com", "denied", "recruiter", "Of the highest quality!")
-    )
-
-    val techList:ListView[String] = new ListView(techArray.map(_.companyName))
-    techList.selectionModel.apply.selectedItems.onChange {
-            val index = techList.selectionModel.apply.selectedIndices.toSeq
-            val company = techArray(index(0))
-            gpTopCompanyTF.text = company.companyName
-            gpTopContactTF.text = company.contactName
-            gpTopPhoneTF.text = company.contactPhone
-            gpTopEmailTF.text = company.contactEmail
-            val status = company.status
-            //val companyType = company.companyType
-            techRB.setSelected(true)
-            var i = 0
-            // breakable {
-            //     while (i < rbTG.getToggles.size) {
-            //         val button = rbTG.getToggles.get(i).asInstanceOf[RadioButton]
-            //         val btnText = button.text
-            //         if (btnText == status) {
-            //             button.setSelected(true)
-            //             break
-            //         }
-            //         i += 1
-            //     }
-            // }
-            // for(t <- rbTG.toggles){
-            //     if(t.text == "Recruiter"){
-            //         t.toggle
-            //     }
-            // }
-            notesTextArea.text = company.notes
-
-            //clear selections in recruiter ListView
-            if(!recruiterList.selectionModel.apply.isEmpty){
-                val index = recruiterList.selectionModel.apply.selectedIndices.toSeq
-                recruiterList.selectionModel.apply.clearSelection(index(0))
-            }
-            //recruiterList.selectionModel.apply.clearSelection
-            //println(index)
-    }
-
-    // val statusCB = new ComboBox(List("Follow Up Required", "Offer Extended", "Declined"))
-    // statusCB.promptText = "Select Status"
-        
-        //model.selectionMode = SelectionMode.Single
-        // var index = model.selectedItem
-        // val company = allCompanies(index)
-        // gpTopCompanyTF.text = company.companyName
-    
-    val recruiterList = new ListView(recruiterArray.map(_.companyName))
-    recruiterList.selectionModel.apply.selectedItems.onChange {
-            val index = recruiterList.selectionModel.apply.selectedIndices.toSeq
-            val company = recruiterArray(index(0))
-            gpTopCompanyTF.text = company.companyName
-            gpTopContactTF.text = company.contactName
-            gpTopPhoneTF.text = company.contactPhone
-            gpTopEmailTF.text = company.contactEmail
-            val status = company.status
-            //val companyType = company.companyType
-            //techRB.selected = false
-            recruiterRB.setSelected(true)
-
-            // for(t <- rbTG.toggles){
-            //     if(t.text == "Recruiter"){
-            //         t.toggle
-            //     }
-            // }
-            notesTextArea.text = company.notes
-
-            //clear selections in tech ListView
-            if(!techList.selectionModel.apply.isEmpty){
-                val index = techList.selectionModel.apply.selectedIndices.toSeq
-                techList.selectionModel.apply.clearSelection(index(0))
-            }
-            //println(index)
-    }
-
-    // def populateTechListView():Array[String] = {
-    //     techList.items = techArray.map(_.companyName)
-    // }
-
-    // def populateRecListView():Array[String] = {
-    //     recruiterList = recruiterArray.map(_.companyName)
-    // }
-
+    Utility methods
+     */
+    //sort and divide contents of comArray based on companyType attribute
     def sortCompanies() = {
-        // println("inside sortCompanies")
-        // println("isEmpty: " + allCompanies.isEmpty)
-        // println("allCompanies size: " + allCompanies.size)
-        // allPrint(allCompanies)
-        for(c <- allCompanies){
+        println("all size: " + comArray.length)
+        comArray.foreach(c => println("all: " + c.companyName))
+        for(c <- comArray){
             if(c.companyType == "tech"){
-                println("inside if")
-                techArray :+= c
-            }
-            else {
-                println("inside else")
-                recruiterArray :+= c
+                techArray.append(c)
+            } else {
+                recArray.append(c)
             }
         }
-        tecPrint(techArray)
-        recPrint(recruiterArray)
-        // println("end of sortCompanies")
+        println("tech size: " + techArray.length)
+        techArray.foreach(c => println("tech: " + c.companyName))
+        println("rec size: " + recArray.length)
+        recArray.foreach(c => println("rec: " + c.companyName))
     }
 
-    // def allPrint(arr:Array[Company]) = {
-    //     println("inside allPrint")
-    //     for(x <- arr){
-    //         println(x.companyName)
-    //     }
-    //     println("end allPrint")
-    // }
-
-    def tecPrint(arr:Array[Company]) = {
-        // println("inside techPrint")
-        println("isEmpty: " + techArray.isEmpty)
-        println("techCompanies size: " + techArray.size)
-        println("tech companies:")
-        for(x <- arr){
-            println(x.companyName)
+    //empty all current contents of comArray and add contents of techArray and recArray
+    def combinedCompanies() = {
+        comArray.clear()
+        for(c <- techArray){
+            comArray.append(c)
         }
-        // println("end tecPrint")
-    }
-
-    def recPrint(arr:Array[Company]) = {
-        // println("inside recPrint")
-        println("isEmpty: " + recruiterArray.isEmpty)
-        println("recCompanies size: " + recruiterArray.size)
-        println("tech companies:")
-        for(x <- arr){
-            println(x.companyName)
+        for(c <- recArray){
+            comArray.append(c)
         }
-        // println("end recPrint")
     }
 
-    //create top GridPane and gpTop elements
-    val gpTopCompanyLabel = new Label("Company Name: ")
-    val gpTopCompanyTF:TextField = new TextField{
-
+    //clear all data fields, return buttons to default setting
+    def clearData() = {
+        companyName.text = null
+        contactName.text = null
+        contactPhone.text = null
+        contactEmail.text = null
+        status.selectionModel.apply.clearSelection
+        techRB.selected = true  //default setting
+        notes.text = null
     }
-    // val gpTopCompany = new BorderPane
-    // gpTopCompany.left = gpTopCompanyLabel
-    // gpTopCompany.center = gpTopCompanyTF
 
-    val gpTopContactLabel = new Label("Contact Name: ")
-    val gpTopContactTF = new TextField
-    // val gpTopContact = new BorderPane
-    // gpTopContact.left = gpTopContactLabel
-    // gpTopContact.center = gpTopContactTF
+    //takes in a String representation of a read only StringProperty and returns a String of just the property value
+    def prop2Str(prop:String):String = {
+        var result = ""
+        val index = prop.lastIndexOf(":")
+        result = prop.substring(index + 2, prop.length - 1)
+        result
+    }
 
-    val gpTopPhoneLabel = new Label("Contact Phone: ")
-    val gpTopPhoneTF = new TextField
-    // val gpTopPhone = new BorderPane
-    // gpTopPhone.left = gpTopPhoneLabel
-    // gpTopPhone.center = gpTopPhoneTF
+    //refresh ListViews
+    def refreshLV() = {
+        for(c <- techArray){
+            //to do 
+        }
+        for(c <- recArray){
+            //to do 
+        }
+    }
 
-    val gpTopEmailLabel = new Label("Contact Email: ")
-    val gpTopEmailTF = new TextField
-    // val gpTopEmail = new BorderPane
-    // gpTopEmail.left = gpTopEmailLabel
-    // gpTopEmail.center = gpTopEmailTF
+    //get company type from RadioButtons
+    //used workaround to get past ClassCastException
+    //substring of read only property string
+    def getType():String = {
+        var result = ""
+        val btnText = tg.selectedToggle.getValue.toString  //RadioButton@3d5a7cbd[styleClass=radio-button]'Tech Company '
+        //println("selected toggle: " + btnText)
+        val index = btnText.indexOf("'")  //45
+        //println("index is: " + index)
+        val subBtnText = btnText.substring(index + 1, btnText.length - 1)  //Tech Company
+        //println("sub string is: " + subBtnText)
+        //val btn = tg.getSelectedToggle.asInstanceOf[RadioButton]
+        if(subBtnText.equals("Tech Company ")){
+            //println("inside if")
+            result = "tech"
+        } else {
+            //println("inside else")
+            result = "recruiter"
+        }
+        //println("result is: " + result)
+        result
+    }
 
-    //val gpTopTypeLabel = new Label("Company Type: ")
+    /*
+    Company info TextFields
+     */
+    val companyName = new TextField
+    val contactName = new TextField
+    val contactPhone = new TextField
+    val contactEmail = new TextField
+    /*
+    FlowPane holding RadioButtons and ToggleGroup
+     */
     val techRB = new RadioButton("Tech Company ")
-    techRB.selected = true
-    val recruiterRB = new RadioButton("Recruiter")
-    val rbTG = new ToggleGroup
-    rbTG.toggles = List(techRB, recruiterRB)
-    val rbFlowPane = new FlowPane(Orientation.Horizontal)
-    rbFlowPane.children += techRB
-    rbFlowPane.children += recruiterRB
-
-    val statusCB = new ComboBox(List("Follow Up Required", "Offer Extended", "Declined"))
-    statusCB.promptText = "Select Status"
-
-    //create bottom GridPane and gpBtns elements
+    techRB.selected = true  //default selected radio btn
+    val recRB = new RadioButton("Recruiter")
+    val tg = new ToggleGroup
+    tg.toggles = List(techRB, recRB)
+    val flowPane = new FlowPane(Orientation.Horizontal)
+    flowPane.children = List(techRB, recRB)
+    /*
+    ComboBox
+     */
+    val status = new ComboBox(List("Follow Up Required", "Offer Extended", "Offer Declined"))
+    /*
+    TextArea for notes about company
+     */
+    val notes = new TextArea
+    /*
+    GridPane holding Add, Modify, and Delete Btns with ActionEvents
+     */
     val addBtn = new Button("Add")
+    addBtn.onAction = (e:ActionEvent) => {
+        val comName = companyName.text.toString()
+        val conName = contactName.text.toString()
+        val phone = contactPhone.text.toString()
+        val email = contactEmail.text.toString()
+        val stat = status.selectionModel.apply.getSelectedItem
+        val comType = getType()
+        val note = notes.text.toString()
+        if(comType.equals("tech")){
+            techArray.append(Company(comName, conName, phone, email, stat, comType, note))
+        } else {
+            recArray.append(Company(comName, conName, phone, email, stat, comType, note))
+        }
+        println("tech size: " + techArray.length)
+        techArray.foreach(c => println("tech: " + c.companyName))
+        println("rec size: " + recArray.length)
+        recArray.foreach(c => println("rec: " + c.companyName))
+        clearData()
+    }
     val modBtn = new Button("Modify")
-    val delBtn = new Button("Delete")     
-
-    val gpBtns = new GridPane
-    gpBtns.add(addBtn,1,1)
-    gpBtns.add(modBtn,2,1)
-    gpBtns.add(delBtn,3,1) 
-
-    //create notes text area
-    val notesLabel = new Label("Notes:")
-    val notesTextArea = new TextArea 
-
-
-    //GUI
-    stage = new PrimaryStage {
-        title = "Job Hunter 1.0"
-        // width = 800
-        // height = 600
-        scene = new Scene(800, 600) {
-            val menuBar = new MenuBar  //create menu bar
-            val fileMenu = new Menu("File")  //create menu
-            //create menu items
-            val newItem = new MenuItem("New") 
-            val openItem = new MenuItem("Open")
-            openItem.onAction = (e:ActionEvent) => {
-                val chooser = new FileChooser
-                val selectedFile = chooser.showOpenDialog(stage)  //function is passed stage that it will appear ontop of
-                if(selectedFile != null){
-                    // val techObs = ObservableBuffer
-                    // val recruiterObs = ObservableBuffer
-                    val source = Source.fromFile(selectedFile)
-                    val lines = source.getLines  //non - empty iterator
-                    var count = 0
-                    val numRecords = lines.next.toInt
-                    // println("number of records: " + numRecords)
-                    while(count < numRecords){
-                        val companyName = lines.next
-                        // println("companyName: " + companyName)
-                        val contactName = lines.next
-                        // println("contactName: " + contactName)
-                        val contactPhone = lines.next
-                        // println("contactPhone: " + contactPhone)
-                        val contactEmail = lines.next
-                        // println("contactEmail: " + contactEmail)
-                        val status = lines.next
-                        // println("status: " + status)
-                        val companyType = lines.next
-                        // println("companyType: " + companyType)
-                        var notes = ""
-                        var line = lines.next
-                        while(line!="--end notes--"){  //"--end notes--" indicates end of notes in text file
-                            notes += line + "\n"
-                            line = lines.next
-                        }
-                        // println("notes: " + notes)
-                        allCompanies :+= Company(companyName, contactName, contactPhone, contactEmail, status, companyType, notes)
-                        count+=1
+    modBtn.onAction = (e:ActionEvent) => {
+        val comName = companyName.text.toString()
+        val conName = contactName.text.toString()
+        val phone = contactPhone.text.toString()
+        val email = contactEmail.text.toString()
+        val stat = status.selectionModel.apply.getSelectedItem
+        val comType = getType()
+        val note = notes.text.toString()
+        if(comType.equals("tech")){
+            techArray(techIndex) = Company(comName, conName, phone, email, stat, comType, note)
+        } else {
+            recArray(recIndex) = Company(comName, conName, phone, email, stat, comType, note)
+        }
+    }
+    val delBtn = new Button("Delete")
+    delBtn.onAction = (e:ActionEvent) => {
+        if(getType() == "tech"){
+            techArray.remove(techIndex)
+        } else {
+            recArray.remove(recIndex)
+        }
+        println("tech size: " + techArray.length)
+        techArray.foreach(c => println("tech: " + c.companyName))
+        println("rec size: " + recArray.length)
+        recArray.foreach(c => println("rec: " + c.companyName))
+        //sortCompanies()
+        clearData()
+    }
+    val btnGP = new GridPane  //3 columns, 1 row
+    btnGP.add(addBtn,1,1)
+    btnGP.add(modBtn,2,1)
+    btnGP.add(delBtn,3,1)
+    /*
+    GUI layout
+     */
+    stage = new PrimaryStage
+    stage.title = "JobHunter1.0.2"
+    stage.scene = new Scene(800, 600){
+        /*
+        MenuBar holding a single Menu
+        3 MenuItems plus a separator
+        ActionEvents for each MenuItem
+         */
+        val menuBar = new MenuBar
+        val fileMenu = new Menu("File")
+        val openItem = new MenuItem("Open")
+        openItem.onAction = (e:ActionEvent) => {
+            val chooser = new FileChooser()
+            val selectedFile = chooser.showOpenDialog(stage)
+            if(selectedFile != null){
+                val source = Source.fromFile(selectedFile)
+                val lines = source.getLines()
+                while(lines.hasNext){
+                    val comName = lines.next()
+                    val conName = lines.next()
+                    val phone = lines.next()
+                    val email = lines.next()
+                    val status = lines.next()
+                    val comType = lines.next()
+                    var notes = ""
+                    var line = lines.next()
+                    while(line != "--end notes--"){  //"--end notes--" indicates end of notes in text file
+                        notes += line + "\n"
+                        line = lines.next()
                     }
-                    source.close
-                    sortCompanies
-                    // if(companyType == "tech"){
-                    //     println("inside if")
-                    //     var thisCompany = TechCompany(companyName, contactName, contactPhone, contactEmail, status, companyType, notes)
-                    //     techArray :+ thisCompany
-                    // }
-                    // else {
-                    //     println("inside else")
-                    //     var thisCompany = RecruitingCompany(companyName, contactName, contactPhone, contactEmail, status, companyType, notes)
-                    //     recruiterArray :+ thisCompany
-                    // }                    
-                    
-                    //techArray.foreach {println(techArray.map(_.companyName))}
-                    //println(techArray(0).companyName)
-                    //println(techArray(1).companyName)
-                    //println(recruiterArray(0).companyName)
-                    // techList.items.append(techArray.map(_.companyName))
-                    // recruiterList.items.append(recruiterArray.map(_.companyName))
-                    // populateTechListView
-                    // populateRecListView
-                    //sortCompanies
-                    //refresh Lists
-                    //techList.items.get += ObservableBuffer(techArray.map(_.companyName))  //haven't tried yet                  
-                    //recruiterList.items = ObservableBuffer(recruiterArray.map(_.companyName))
+                    comArray.append(Company(comName, conName, phone, email, status, comType, notes))
                 }
+                source.close()
+                sortCompanies()
+                refreshLV()
             }
-            val saveItem = new MenuItem("Save")
-            saveItem.onAction = (e:ActionEvent) => {
-                val chooser = new FileChooser
-                val selectedFile = chooser.showSaveDialog(stage)
-                if(selectedFile != null){
-                    val pw = new java.io.PrintWriter(selectedFile)
-                    pw.println(allCompanies.size)
-                    for(c <- allCompanies){
-                        pw.println(c.companyName)
-                        pw.println(c.contactName)
-                        pw.println(c.contactPhone)
-                        pw.println(c.contactEmail)
-                        pw.println(c.status)
-                        pw.println(c.companyType)
-                        pw.println(c.notes)
-                        pw.println("--end notes--")
-                    }
-                    pw.close
+        }
+        val saveItem = new MenuItem("Save")
+        saveItem.onAction = (e:ActionEvent) => {
+            val chooser = new FileChooser()
+            val selectedFile = chooser.showSaveDialog(stage)
+            if(selectedFile != null){
+                val pw = new java.io.PrintWriter(selectedFile)
+                combinedCompanies()
+                for(c <- comArray){
+                    pw.println(c.companyName)
+                    pw.println(c.contactName)
+                    pw.println(c.contactPhone)
+                    pw.println(c.contactEmail)
+                    pw.println(c.status)
+                    pw.println(c.companyType)
+                    pw.println(c.notes)
+                    pw.println("--end notes--")
                 }
+                pw.close()
             }
-            val exitItem = new MenuItem("Exit")
-            exitItem.onAction = (e:ActionEvent) => sys.exit(0)
-            fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)  //add items to menu
-            menuBar.menus = List(fileMenu)  //add menu to menu bar
-
-
-            // val label1 = new Label("company list")
-            // val label2 = new Label("recruiter list")
-            val leftSPTopLbl = new Label("Tech Companies")
-            val techScroll = new ScrollPane
-            techScroll.content = techList
-            val leftSPTopBP = new BorderPane
-            leftSPTopBP.top = leftSPTopLbl
-            leftSPTopBP.center = techScroll
-
-            val leftSPBottomLbl = new Label("Recruiters")
-            val recruiterScroll = new ScrollPane
-            recruiterScroll.content = recruiterList
-            val leftSPBottomBP = new BorderPane
-            leftSPBottomBP.top = leftSPBottomLbl
-            leftSPBottomBP.center = recruiterScroll
-
-            val leftSplitPane = new SplitPane
-            leftSplitPane.orientation = Orientation.Vertical  //sets items vertically
-            leftSplitPane.items ++= List(leftSPTopBP, leftSPBottomBP) //add items to leftSplitPane
-            //leftSplitPane.dividerPositions = 0.5  //set divider position not working
-            //leftSplitPane.resize(0.5, 0.5)
-            //leftSplitPane.prefHeight = 5.0
-
-
-            val gpTop = new GridPane
-            //gpTop.alignmentInParent = Pos.CENTER
-            // gpTop.add(gpTopCompany,1,1)  //element, column, row
-            // gpTop.add(gpTopContact,1,2)
-            // gpTop.add(gpTopPhone,1,3)
-            // gpTop.add(gpTopEmail,1,4)
-            gpTop.add(gpTopCompanyLabel,1,1)
-            gpTop.add(gpTopCompanyTF,2,1)
-            gpTop.add(gpTopContactLabel,1,2)
-            gpTop.add(gpTopContactTF,2,2)
-            gpTop.add(gpTopPhoneLabel,1,3)
-            gpTop.add(gpTopPhoneTF,2,3)
-            gpTop.add(gpTopEmailLabel,1,4)
-            gpTop.add(gpTopEmailTF,2,4)
-            //gpTop.add(gpTopTypeLabel,3,1)
-            gpTop.add(rbFlowPane,3,1)
-            gpTop.add(statusCB,3,2)
-            gpTop.add(gpBtns,3,4)
-
-            
-            // val notesScroll = new ScrollPane
-            // notesScroll.content = notesTextArea
-            val notesBorderPane = new BorderPane
-            notesBorderPane.top = notesLabel
-            notesBorderPane.center = notesTextArea
-
-            val rightBorderPane = new BorderPane
-            rightBorderPane.top = gpTop  //add top GridPane to rightBorderPane
-            rightBorderPane.center = notesBorderPane  //add descBorderPane to rightBorderPane
-            //rightBorderPane.right = gpBtns  //add bottom GridPane to rightBorderPane     
-
-            val mainSplitPane = new SplitPane  //create mainSplitPane
-            mainSplitPane.items ++= List(leftSplitPane, rightBorderPane)  //add items to mainSplitPane
-            mainSplitPane.dividerPositions = 0.175  //set divider position
-
-            val rootPane = new BorderPane  //create rootPane
-            rootPane.top = menuBar  //add menuBar to top of rootPane
-            rootPane.center = mainSplitPane  //add mainSplitPane to center of rootPane
-            root = rootPane  //display rootPane
-       }
+        }
+        val exitItem = new MenuItem("Exit")
+        exitItem.onAction = (e:ActionEvent) => sys.exit(0)
+        fileMenu.items = List(openItem, saveItem, new SeparatorMenuItem, exitItem)
+        menuBar.menus = List(fileMenu)
+        /*
+        root BorderPane holding MenuBar top, SplitPane center
+            SplitPane holding SplitPane left, BorderPane right
+                SplitPane holding BorderPane top, BorderPane bottom
+                    Top & Bottom BorderPane holding Label top, ScrollPane center holding ListView
+                BorderPane holding GridPane top, BorderPane center
+                    GridPane holding TextFields, RadioButtonFlowPane, ComboBox, BtnGridPane
+                    BorderPane holding Label top, ScrollPane center holding TextArea
+         */
+        //top ScrollPane
+        val topScrP = new ScrollPane
+        topScrP.content = techList
+        //bottom ScrollPane
+        val bottomScrP = new ScrollPane
+        bottomScrP.content = recList
+        //top BorderPane
+        val topBP = new BorderPane
+        topBP.top = new Label("Tech Companies")
+        topBP.center = topScrP
+        //bottom BorderPane
+        val bottomBP = new BorderPane
+        bottomBP.top = new Label("Recruiters")
+        bottomBP.center = bottomScrP
+        //left SplitPane
+        val leftSP = new SplitPane
+        leftSP.orientation = Orientation.Vertical  //sets items vertically
+        leftSP.items ++= List(topBP, bottomBP)
+        //GridPane
+        val topGP = new GridPane  //4 columns, 3 rows
+        topGP.add(new Label("Company Name: "),1,1)
+        topGP.add(companyName,2,1)
+        topGP.add(new Label("Contact Name: "),1,2)
+        topGP.add(contactName,2,2)
+        topGP.add(new Label("Contact Phone: "),1,3)
+        topGP.add(contactPhone,2,3)
+        topGP.add(new Label("Contact Email: "),1,4)
+        topGP.add(contactEmail,2,4)
+        topGP.add(flowPane,3,1)
+        topGP.add(status,3,2)
+        topGP.add(btnGP,3,4)
+        //notes BorderPane
+        val notesBP = new BorderPane
+        notesBP.top = new Label("Notes:")
+        notesBP.center = notes
+        //right BorderPane
+        val rightBP = new BorderPane
+        rightBP.top = topGP
+        rightBP.center = notesBP
+        //main SplitPane
+        val mainSP = new SplitPane
+        mainSP.dividerPositions = 0.175
+        mainSP.items ++= List(leftSP, rightBP)
+        //root BorderPane
+        val rootPane = new BorderPane
+        rootPane.top = menuBar
+        rootPane.center = mainSP
+        root = rootPane
     }
 }
