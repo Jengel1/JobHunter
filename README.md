@@ -1,12 +1,12 @@
-scalafx-hello-world
+Job Hunter
 ===================
 
-Simple example of a ScalaFX application using [Simple-Build-Tool](http://www.scala-sbt.org/) (SBT).
+A simple desktop application to aid in tracking the status of submitted resumes to tech companies and recruiters.  This project was originally forked from scalafx/scalafx-hello-world in order to make use of the configurations in the build.sbt file, the plugins.sbt file and the project and target folders.
 
 Content
 -------
 
-* `src/main/scala/hello/ScalaFXHelloWorld.scala` - sample ScalaFX application.
+* `src/main/scala/jobHunter.scala` - ScalaFX application.
 * `build.sbt` - the main SBT configuration file.
 * `project/build.properties` - version of SBT to use.
 * `project/plugins.sbt` - plugins used for creation of IDEA and Eclipse projects.
@@ -44,10 +44,3 @@ If you want to create project that can be used with Eclipse, inside
 this project directory, at command prompt type:
 
     %> sbt eclipse
-
-
-Additional Information
-----------------------
-
-Detailed description of similar example can be found in the blog post
-["Getting Started with ScalaFX: Compile and Run"](http://codingonthestaircase.wordpress.com/2013/05/17/getting-started-with-scalafx-compile-and-run-2/).
