@@ -1,27 +1,32 @@
-3
-jared industries
-jared
-555-555-5555
-jared@jared.com
-applied
+[SFX]StringProperty [bean: TextField@62dff29d[styleClass=text-input text-field], name: text, value: Jared's Fix It!]
+[SFX]StringProperty [bean: TextField@41bb5e58[styleClass=text-input text-field], name: text, value: jared]
+[SFX]StringProperty [bean: TextField@2636b835[styleClass=text-input text-field], name: text, value: 555-555-5555]
+[SFX]StringProperty [bean: TextField@5c182c03[styleClass=text-input text-field], name: text, value: jared@fixit.com]
+Follow Up Required
 tech
-Great Company!
+[SFX]StringProperty [bean: TextArea@bcdb242[styleClass=text-input text-area], name: text, value: I really like this guy!]
 --end notes--
-Guy Electronics
-William
-777-777-7777
-will@theguy.com
-follow up needed
+[SFX]StringProperty [bean: TextField@62dff29d[styleClass=text-input text-field], name: text, value: Guy Electronics]
+[SFX]StringProperty [bean: TextField@41bb5e58[styleClass=text-input text-field], name: text, value: William]
+[SFX]StringProperty [bean: TextField@2636b835[styleClass=text-input text-field], name: text, value: 777-777-7777]
+[SFX]StringProperty [bean: TextField@5c182c03[styleClass=text-input text-field], name: text, value: will@theguy.com]
+Offer Declined
 tech
-What a good guy!
-I love this guy!
-He's just a guy!
+[SFX]StringProperty [bean: TextArea@bcdb242[styleClass=text-input text-area], name: text, value: What a good guy!]
 --end notes--
-Sheesh Burger
-Mia
-888-888-8888
-theMonster@shoe.com
-denied
+[SFX]StringProperty [bean: TextField@62dff29d[styleClass=text-input text-field], name: text, value: Sheesh Burger]
+[SFX]StringProperty [bean: TextField@41bb5e58[styleClass=text-input text-field], name: text, value: Mia]
+[SFX]StringProperty [bean: TextField@2636b835[styleClass=text-input text-field], name: text, value: 888-888-8888]
+[SFX]StringProperty [bean: TextField@5c182c03[styleClass=text-input text-field], name: text, value: theMonster@shoe.com]
+Offer Declined
 recruiter
-Such an attitude!
+[SFX]StringProperty [bean: TextArea@bcdb242[styleClass=text-input text-area], name: text, value: Such an attitude!]
+--end notes--
+[SFX]StringProperty [bean: TextField@62dff29d[styleClass=text-input text-field], name: text, value: Eating Good Now]
+[SFX]StringProperty [bean: TextField@41bb5e58[styleClass=text-input text-field], name: text, value: Ali]
+[SFX]StringProperty [bean: TextField@2636b835[styleClass=text-input text-field], name: text, value: 222-222-2222]
+[SFX]StringProperty [bean: TextField@5c182c03[styleClass=text-input text-field], name: text, value: ali@thebest.com]
+Offer Declined
+recruiter
+[SFX]StringProperty [bean: TextArea@bcdb242[styleClass=text-input text-area], name: text, value: Of the highest quality!]
 --end notes--

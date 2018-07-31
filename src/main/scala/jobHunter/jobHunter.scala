@@ -27,13 +27,14 @@
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
-import scalafx.application.JFXApp
-import scalafx.scene.control._
 import scalafx.Includes._
+import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.collections._
 import scalafx.event.ActionEvent
 import scalafx.geometry.Orientation
 import scalafx.scene.Scene
+import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, FlowPane, GridPane}
 import scalafx.stage.FileChooser
 
@@ -51,14 +52,9 @@ object JobHunterTestObj extends JFXApp {
         notes: String
     )
 
-    //dummy data
-    //var company1 = Company("Jared's Fix It!", "Jared", "555-555-5555", "jared@fixit.com", "Applied", "tech", "I really like this guy")
-    //var company3 = Company("Sheesh Burger", "Mia", "888-888-8888", "theMonster@shoe.com", "denied", "recruiter", "Such an attitude!")
-    //var company4 = Company("Eating Good Now", "Ali", "222-222-2222", "ali@thebest.com", "denied", "recruiter", "Of the highest quality!")
-    //var company2 = Company("Guy Electronics", "William", "777-777-7777", "will@theguy.com", "follow up needed", "tech", "What a good guy!")
-
     //ArrayBuffer holding all Companies
     val comArray = ArrayBuffer[Company]()
+
     //ArrayBuffers sorted into tech companies and recruiters
     val techArray = ArrayBuffer[Company]()
     val recArray = ArrayBuffer[Company]()
@@ -66,32 +62,35 @@ object JobHunterTestObj extends JFXApp {
     //variables to hold index values for selected companies
     var techIndex = 0
     var recIndex = 0
+
     //ListViews of tech companies and recruiters
     var techList = new ListView(techArray.map(_.companyName))
-    techList.selectionModel.apply.selectedItems.onChange {
-        techIndex = techList.selectionModel.apply.getSelectedIndex
-        println("selected index: " + techIndex)
-        val company = techArray(techIndex)
-        companyName.text = prop2Str(company.companyName)
+    techList.selectionModel.apply.selectedItems.onChange {  //change listener
+        techIndex = techList.selectionModel.apply.getSelectedIndex  //get index of selected listview item
+        val company = techArray(techIndex)  //use index to select company from underlying array
+        //fill data fields
+        companyName.text = prop2Str(company.companyName)  
         contactName.text = prop2Str(company.contactName)
         contactPhone.text = prop2Str(company.contactPhone)
         contactEmail.text = prop2Str(company.contactEmail)
-        //set status combo box
+        status.selectionModel.apply().select(company.status)
         techRB.selected = true  //set company type
         notes.text = prop2Str(company.notes)
+        clearSelections(recList)  //clear selections in recList
     }
     var recList = new ListView(recArray.map(_.companyName))
-    recList.selectionModel.apply.selectedItems.onChange {
-        recIndex = recList.selectionModel.apply.getSelectedIndex
-        println("selected index: " + recIndex)
-        val company = recArray(recIndex)
+    recList.selectionModel.apply.selectedItems.onChange {  //change listener
+        recIndex = recList.selectionModel.apply.getSelectedIndex  //get index of selected listview item
+        val company = recArray(recIndex)  //use index to select company from underlying array
+        //fill data fields
         companyName.text = prop2Str(company.companyName)
         contactName.text = prop2Str(company.contactName)
         contactPhone.text = prop2Str(company.contactPhone)
         contactEmail.text = prop2Str(company.contactEmail)
-        //set status combo box
+        status.selectionModel.apply().select(company.status)
         recRB.selected = true  //set company type
         notes.text = prop2Str(company.notes)
+        clearSelections(techList)  //clear selections in techList
     }
 
     /*
@@ -99,8 +98,6 @@ object JobHunterTestObj extends JFXApp {
      */
     //sort and divide contents of comArray based on companyType attribute
     def sortCompanies() = {
-        println("all size: " + comArray.length)
-        comArray.foreach(c => println("all: " + c.companyName))
         for(c <- comArray){
             if(c.companyType == "tech"){
                 techArray.append(c)
@@ -108,12 +105,7 @@ object JobHunterTestObj extends JFXApp {
                 recArray.append(c)
             }
         }
-        println("tech size: " + techArray.length)
-        techArray.foreach(c => println("tech: " + c.companyName))
-        println("rec size: " + recArray.length)
-        recArray.foreach(c => println("rec: " + c.companyName))
     }
-
     //empty all current contents of comArray and add contents of techArray and recArray
     def combinedCompanies() = {
         comArray.clear()
@@ -124,7 +116,6 @@ object JobHunterTestObj extends JFXApp {
             comArray.append(c)
         }
     }
-
     //clear all data fields, return buttons to default setting
     def clearData() = {
         companyName.text = null
@@ -135,45 +126,46 @@ object JobHunterTestObj extends JFXApp {
         techRB.selected = true  //default setting
         notes.text = null
     }
-
-    //takes in a String representation of a read only StringProperty and returns a String of just the property value
+    //takes in a String of a read only StringProperty and returns a String of just the property value
     def prop2Str(prop:String):String = {
         var result = ""
         val index = prop.lastIndexOf(":")
         result = prop.substring(index + 2, prop.length - 1)
         result
     }
-
     //refresh ListViews
     def refreshLV() = {
+        //create observable objects from tech & rec arrays to populate ListViews
+        val techOB = new ObservableBuffer[String]()
+        val recOB = new ObservableBuffer[String]()
         for(c <- techArray){
-            //to do 
+            techOB.append(prop2Str(c.companyName))
         }
         for(c <- recArray){
-            //to do 
+            recOB.append(prop2Str(c.companyName))
         }
+        techList.setItems(techOB)
+        recList.setItems(recOB)
     }
-
+    //clear ListView selections
+    //throws ArrayIndexOutOfBounds error
+    def clearSelections(lv:ListView[String]) = {
+        val index = lv.selectionModel.apply().getSelectedIndex  //index of selected item
+        lv.selectionModel.apply().clearSelection(index)  //clear selection
+    }
     //get company type from RadioButtons
     //used workaround to get past ClassCastException
-    //substring of read only property string
+    //used substring of read only property string
     def getType():String = {
         var result = ""
         val btnText = tg.selectedToggle.getValue.toString  //RadioButton@3d5a7cbd[styleClass=radio-button]'Tech Company '
-        //println("selected toggle: " + btnText)
-        val index = btnText.indexOf("'")  //45
-        //println("index is: " + index)
+        val index = btnText.indexOf("'")  //45, first occurance of '
         val subBtnText = btnText.substring(index + 1, btnText.length - 1)  //Tech Company
-        //println("sub string is: " + subBtnText)
-        //val btn = tg.getSelectedToggle.asInstanceOf[RadioButton]
         if(subBtnText.equals("Tech Company ")){
-            //println("inside if")
             result = "tech"
         } else {
-            //println("inside else")
             result = "recruiter"
         }
-        //println("result is: " + result)
         result
     }
 
@@ -184,6 +176,7 @@ object JobHunterTestObj extends JFXApp {
     val contactName = new TextField
     val contactPhone = new TextField
     val contactEmail = new TextField
+
     /*
     FlowPane holding RadioButtons and ToggleGroup
      */
@@ -194,19 +187,23 @@ object JobHunterTestObj extends JFXApp {
     tg.toggles = List(techRB, recRB)
     val flowPane = new FlowPane(Orientation.Horizontal)
     flowPane.children = List(techRB, recRB)
+
     /*
     ComboBox
      */
     val status = new ComboBox(List("Follow Up Required", "Offer Extended", "Offer Declined"))
+
     /*
     TextArea for notes about company
      */
     val notes = new TextArea
+
     /*
     GridPane holding Add, Modify, and Delete Btns with ActionEvents
      */
     val addBtn = new Button("Add")
     addBtn.onAction = (e:ActionEvent) => {
+        //get data from data fields
         val comName = companyName.text.toString()
         val conName = contactName.text.toString()
         val phone = contactPhone.text.toString()
@@ -214,19 +211,19 @@ object JobHunterTestObj extends JFXApp {
         val stat = status.selectionModel.apply.getSelectedItem
         val comType = getType()
         val note = notes.text.toString()
+        //add to tech or rec array based on companyType attribute
         if(comType.equals("tech")){
             techArray.append(Company(comName, conName, phone, email, stat, comType, note))
         } else {
             recArray.append(Company(comName, conName, phone, email, stat, comType, note))
         }
-        println("tech size: " + techArray.length)
-        techArray.foreach(c => println("tech: " + c.companyName))
-        println("rec size: " + recArray.length)
-        recArray.foreach(c => println("rec: " + c.companyName))
+        //refresh the ListViews to reflect updated data, clear data fields
+        refreshLV()
         clearData()
     }
     val modBtn = new Button("Modify")
     modBtn.onAction = (e:ActionEvent) => {
+        //get data from data fields
         val comName = companyName.text.toString()
         val conName = contactName.text.toString()
         val phone = contactPhone.text.toString()
@@ -234,30 +231,33 @@ object JobHunterTestObj extends JFXApp {
         val stat = status.selectionModel.apply.getSelectedItem
         val comType = getType()
         val note = notes.text.toString()
+        //modify the attributes of the selected company in the tech or rec array based on companyType attribute
         if(comType.equals("tech")){
             techArray(techIndex) = Company(comName, conName, phone, email, stat, comType, note)
         } else {
             recArray(recIndex) = Company(comName, conName, phone, email, stat, comType, note)
         }
+        //refresh the ListViews to reflect updated data
+        refreshLV()
     }
     val delBtn = new Button("Delete")
     delBtn.onAction = (e:ActionEvent) => {
-        if(getType() == "tech"){
-            techArray.remove(techIndex)
+        if(getType() == "tech"){  //get value from selected toggle
+            techArray.remove(techIndex)  //remove selected item from array
+            clearSelections(techList)  //clear the selected index of deleted item
         } else {
-            recArray.remove(recIndex)
+            recArray.remove(recIndex)  //remove selected item from array
+            clearSelections(recList)  //clear the selected index of deleted item
         }
-        println("tech size: " + techArray.length)
-        techArray.foreach(c => println("tech: " + c.companyName))
-        println("rec size: " + recArray.length)
-        recArray.foreach(c => println("rec: " + c.companyName))
-        //sortCompanies()
+        //refresh the ListViews to reflect updated data, clear data fields
+        refreshLV()
         clearData()
     }
     val btnGP = new GridPane  //3 columns, 1 row
     btnGP.add(addBtn,1,1)
     btnGP.add(modBtn,2,1)
     btnGP.add(delBtn,3,1)
+
     /*
     GUI layout
      */
@@ -291,9 +291,11 @@ object JobHunterTestObj extends JFXApp {
                         notes += line + "\n"
                         line = lines.next()
                     }
+                    //add values to a company and add company to comArray
                     comArray.append(Company(comName, conName, phone, email, status, comType, notes))
                 }
                 source.close()
+                //sort companies in comArray into tech and rec arrays, refresh ListViews to reflect updated data
                 sortCompanies()
                 refreshLV()
             }
