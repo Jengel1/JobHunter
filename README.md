@@ -1,7 +1,7 @@
 Job Hunter
 ===================
 
-A simple desktop application to aid in tracking the status of submitted resumes to tech companies and recruiters.  This project was originally forked from scalafx/scalafx-hello-world in order to make use of the configurations in the build.sbt file, the plugins.sbt file, and the project and target folders.
+A simple desktop application to aid in tracking the status of submitted resumes to tech companies and recruiters.  This project was originally forked from scalafx/scalafx-hello-world in order to make use of the configurations in the build.sbt file, the plugins.sbt file, and the project and target folders.  The jbcss branch of this project includes stylesheets.
 
 Content
 -------
