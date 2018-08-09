@@ -32,10 +32,11 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.collections._
 import scalafx.event.ActionEvent
-import scalafx.geometry.Orientation
+import scalafx.geometry.{Orientation, Pos, Insets}
 import scalafx.scene.Scene
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, FlowPane, GridPane}
+import scalafx.scene.layout._
+import scalafx.scene.paint.Color
 import scalafx.stage.FileChooser
 
 /**
@@ -65,11 +66,10 @@ object JobHunterTestObj extends JFXApp {
 
     //ListViews of tech companies and recruiters
     var techList = new ListView(techArray.map(_.companyName))
-    techList.selectionModel.apply.selectedItems.onChange {  //change listener
-        techIndex = techList.selectionModel.apply.getSelectedIndex  //get index of selected listview item
-        val company = techArray(techIndex)  //use index to select company from underlying array
-        //fill data fields
-        companyName.text = prop2Str(company.companyName)  
+    techList.selectionModel.apply.selectedItems.onChange {
+        techIndex = techList.selectionModel.apply.getSelectedIndex
+        val company = techArray(techIndex)
+        companyName.text = prop2Str(company.companyName)
         contactName.text = prop2Str(company.contactName)
         contactPhone.text = prop2Str(company.contactPhone)
         contactEmail.text = prop2Str(company.contactEmail)
@@ -79,10 +79,9 @@ object JobHunterTestObj extends JFXApp {
         clearSelections(recList)  //clear selections in recList
     }
     var recList = new ListView(recArray.map(_.companyName))
-    recList.selectionModel.apply.selectedItems.onChange {  //change listener
-        recIndex = recList.selectionModel.apply.getSelectedIndex  //get index of selected listview item
-        val company = recArray(recIndex)  //use index to select company from underlying array
-        //fill data fields
+    recList.selectionModel.apply.selectedItems.onChange {
+        recIndex = recList.selectionModel.apply.getSelectedIndex
+        val company = recArray(recIndex)
         companyName.text = prop2Str(company.companyName)
         contactName.text = prop2Str(company.contactName)
         contactPhone.text = prop2Str(company.contactPhone)
@@ -126,7 +125,7 @@ object JobHunterTestObj extends JFXApp {
         techRB.selected = true  //default setting
         notes.text = null
     }
-    //takes in a String of a read only StringProperty and returns a String of just the property value
+    //takes in a String representation of a read only StringProperty and returns a String of just the property value
     def prop2Str(prop:String):String = {
         var result = ""
         val index = prop.lastIndexOf(":")
@@ -135,7 +134,6 @@ object JobHunterTestObj extends JFXApp {
     }
     //refresh ListViews
     def refreshLV() = {
-        //create observable objects from tech & rec arrays to populate ListViews
         val techOB = new ObservableBuffer[String]()
         val recOB = new ObservableBuffer[String]()
         for(c <- techArray){
@@ -148,20 +146,19 @@ object JobHunterTestObj extends JFXApp {
         recList.setItems(recOB)
     }
     //clear ListView selections
-    //throws ArrayIndexOutOfBounds error
     def clearSelections(lv:ListView[String]) = {
-        val index = lv.selectionModel.apply().getSelectedIndex  //index of selected item
-        lv.selectionModel.apply().clearSelection(index)  //clear selection
+        val index = lv.selectionModel.apply().getSelectedIndex
+        lv.selectionModel.apply().clearSelection(index)
     }
     //get company type from RadioButtons
     //used workaround to get past ClassCastException
-    //used substring of read only property string
+    //substring of read only property string
     def getType():String = {
         var result = ""
         val btnText = tg.selectedToggle.getValue.toString  //RadioButton@3d5a7cbd[styleClass=radio-button]'Tech Company '
-        val index = btnText.indexOf("'")  //45, first occurance of '
+        val index = btnText.indexOf("'")  //45
         val subBtnText = btnText.substring(index + 1, btnText.length - 1)  //Tech Company
-        if(subBtnText.equals("Tech Company ")){
+        if(subBtnText.equals("Tech Company")){
             result = "tech"
         } else {
             result = "recruiter"
@@ -180,18 +177,22 @@ object JobHunterTestObj extends JFXApp {
     /*
     FlowPane holding RadioButtons and ToggleGroup
      */
-    val techRB = new RadioButton("Tech Company ")
+    val techRB = new RadioButton("Tech Company")
     techRB.selected = true  //default selected radio btn
     val recRB = new RadioButton("Recruiter")
     val tg = new ToggleGroup
     tg.toggles = List(techRB, recRB)
-    val flowPane = new FlowPane(Orientation.Horizontal)
+    val flowPane = new FlowPane(Orientation.Horizontal){
+        hgap = 10
+    }
     flowPane.children = List(techRB, recRB)
 
     /*
     ComboBox
      */
-    val status = new ComboBox(List("Follow Up Required", "Offer Extended", "Offer Declined"))
+    val status = new ComboBox(List("Follow Up Required", "Offer Extended", "Offer Declined")){
+        promptText = "Select Status"
+    }
 
     /*
     TextArea for notes about company
@@ -203,7 +204,6 @@ object JobHunterTestObj extends JFXApp {
      */
     val addBtn = new Button("Add")
     addBtn.onAction = (e:ActionEvent) => {
-        //get data from data fields
         val comName = companyName.text.toString()
         val conName = contactName.text.toString()
         val phone = contactPhone.text.toString()
@@ -211,19 +211,16 @@ object JobHunterTestObj extends JFXApp {
         val stat = status.selectionModel.apply.getSelectedItem
         val comType = getType()
         val note = notes.text.toString()
-        //add to tech or rec array based on companyType attribute
         if(comType.equals("tech")){
             techArray.append(Company(comName, conName, phone, email, stat, comType, note))
         } else {
             recArray.append(Company(comName, conName, phone, email, stat, comType, note))
         }
-        //refresh the ListViews to reflect updated data, clear data fields
         refreshLV()
         clearData()
     }
     val modBtn = new Button("Modify")
     modBtn.onAction = (e:ActionEvent) => {
-        //get data from data fields
         val comName = companyName.text.toString()
         val conName = contactName.text.toString()
         val phone = contactPhone.text.toString()
@@ -231,29 +228,28 @@ object JobHunterTestObj extends JFXApp {
         val stat = status.selectionModel.apply.getSelectedItem
         val comType = getType()
         val note = notes.text.toString()
-        //modify the attributes of the selected company in the tech or rec array based on companyType attribute
         if(comType.equals("tech")){
             techArray(techIndex) = Company(comName, conName, phone, email, stat, comType, note)
         } else {
             recArray(recIndex) = Company(comName, conName, phone, email, stat, comType, note)
         }
-        //refresh the ListViews to reflect updated data
         refreshLV()
     }
     val delBtn = new Button("Delete")
     delBtn.onAction = (e:ActionEvent) => {
-        if(getType() == "tech"){  //get value from selected toggle
-            techArray.remove(techIndex)  //remove selected item from array
+        if(getType() == "tech"){
+            techArray.remove(techIndex)
             clearSelections(techList)  //clear the selected index of deleted item
         } else {
-            recArray.remove(recIndex)  //remove selected item from array
+            recArray.remove(recIndex)
             clearSelections(recList)  //clear the selected index of deleted item
         }
-        //refresh the ListViews to reflect updated data, clear data fields
         refreshLV()
         clearData()
     }
-    val btnGP = new GridPane  //3 columns, 1 row
+    val btnGP = new GridPane{  //3 columns, 1 row
+        hgap = 2
+    }
     btnGP.add(addBtn,1,1)
     btnGP.add(modBtn,2,1)
     btnGP.add(delBtn,3,1)
@@ -262,8 +258,9 @@ object JobHunterTestObj extends JFXApp {
     GUI layout
      */
     stage = new PrimaryStage
-    stage.title = "JobHunter1.0.2"
+    stage.title = "JobHunter1.0.3"
     stage.scene = new Scene(800, 600){
+        stylesheets = List(getClass.getResource("styles.css").toExternalForm)
         /*
         MenuBar holding a single Menu
         3 MenuItems plus a separator
@@ -291,11 +288,9 @@ object JobHunterTestObj extends JFXApp {
                         notes += line + "\n"
                         line = lines.next()
                     }
-                    //add values to a company and add company to comArray
                     comArray.append(Company(comName, conName, phone, email, status, comType, notes))
                 }
                 source.close()
-                //sort companies in comArray into tech and rec arrays, refresh ListViews to reflect updated data
                 sortCompanies()
                 refreshLV()
             }
@@ -334,47 +329,85 @@ object JobHunterTestObj extends JFXApp {
                     BorderPane holding Label top, ScrollPane center holding TextArea
          */
         //top ScrollPane
-        val topScrP = new ScrollPane
+        val topScrP = new ScrollPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         topScrP.content = techList
         //bottom ScrollPane
-        val bottomScrP = new ScrollPane
+        val bottomScrP = new ScrollPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         bottomScrP.content = recList
         //top BorderPane
-        val topBP = new BorderPane
+        val topBP = new BorderPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         topBP.top = new Label("Tech Companies")
         topBP.center = topScrP
         //bottom BorderPane
-        val bottomBP = new BorderPane
+        val bottomBP = new BorderPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         bottomBP.top = new Label("Recruiters")
         bottomBP.center = bottomScrP
         //left SplitPane
-        val leftSP = new SplitPane
+        val leftSP = new SplitPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         leftSP.orientation = Orientation.Vertical  //sets items vertically
         leftSP.items ++= List(topBP, bottomBP)
         //GridPane
-        val topGP = new GridPane  //4 columns, 3 rows
-        topGP.add(new Label("Company Name: "),1,1)
-        topGP.add(companyName,2,1)
-        topGP.add(new Label("Contact Name: "),1,2)
-        topGP.add(contactName,2,2)
-        topGP.add(new Label("Contact Phone: "),1,3)
-        topGP.add(contactPhone,2,3)
-        topGP.add(new Label("Contact Email: "),1,4)
-        topGP.add(contactEmail,2,4)
-        topGP.add(flowPane,3,1)
-        topGP.add(status,3,2)
-        topGP.add(btnGP,3,4)
+        val topGP = new GridPane{
+            hgap = 10
+            vgap = 2
+        }  //4 columns, 3 rows
+        topGP.columnConstraints.add(new ColumnConstraints(110))  //column 1
+        topGP.columnConstraints.add(new ColumnConstraints(150))  //column 2
+        topGP.add(new Label{
+            text = "Company Name: "
+            alignmentInParent = Pos.CenterLeft
+            padding = Insets.apply(0,0,0,5)
+        },0,0)
+        topGP.add(companyName,1,0)  //text field
+        topGP.add(new Label{
+            text = "Contact Name: "
+            alignmentInParent = Pos.CenterLeft
+            padding = Insets.apply(0,0,0,5)
+        },0,1)
+        topGP.add(contactName,1,1)  //text field
+        topGP.add(new Label{
+            text = "Contact Phone: "
+            alignmentInParent = Pos.CenterLeft
+            padding = Insets.apply(0,0,0,5)
+        },0,2)
+        topGP.add(contactPhone,1,2)  //text field
+        topGP.add(new Label{
+            text = "Contact Email: "
+            alignmentInParent = Pos.CenterLeft
+            padding = Insets.apply(0,0,0,5)
+        },0,3)
+        topGP.add(contactEmail,1,3)  //text field
+        topGP.add(flowPane,2,0)  //radio buttons
+        topGP.add(status,2,1)  //combo box
+        topGP.add(btnGP,2,3)  //button group
         //notes BorderPane
         val notesBP = new BorderPane
-        notesBP.top = new Label("Notes:")
+        notesBP.top = new Label{
+            text = "Notes:"
+            padding = Insets.apply(0,0,0,5)
+        }
         notesBP.center = notes
         //right BorderPane
-        val rightBP = new BorderPane
+        val rightBP = new BorderPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
         rightBP.top = topGP
         rightBP.center = notesBP
         //main SplitPane
-        val mainSP = new SplitPane
-        mainSP.dividerPositions = 0.175
+        val mainSP = new SplitPane{
+            style = "-fx-background-color: #2e2c2f;"
+        }
+        mainSP.dividerPositions = 0.2
         mainSP.items ++= List(leftSP, rightBP)
         //root BorderPane
         val rootPane = new BorderPane

@@ -1,0 +1,106 @@
+/*JobHunter1.0.3 Stylesheet*/
+
+.root {
+	-fx-font-size: 10pt;
+}
+
+.grid-pane {
+    -fx-float: right;
+}
+
+.label {
+	-fx-text-fill: white;
+}
+
+.menu-bar {
+    -fx-background-color: #2e2c2f;
+    -fx-border-width: 1px;
+    -fx-border-bottom: solid 1px;
+    -fx-border-color: white;
+}
+
+.menu {
+    -fx-font-size: 12pt;
+    -fx-font-weight: normal;
+    -fx-text-fill: white;
+}
+
+.menu:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
+
+.menu-item {
+    -fx-background-color: #2e2c2f;
+}
+
+.menu-item:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
+
+.button {
+    -fx-font-family: "Arial";
+    -fx-font-size: 12pt;
+    -fx-font-weight: bold;
+    -fx-background-color: grey;
+    -fx-text-fill: white;
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: black;
+}
+
+.button:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
+
+.combo-box {
+    -fx-text-fill: white;
+    -fx-font-size: 12pt;
+    -fx-font-weight: bold;
+    -fx-font-family: "Arial";
+    -fx-border-width: 0.5px;
+    -fx-border-color: black;
+    -fx-border-radius: 50px;
+    -fx-background-color: grey;
+    -fx-background-radius: 50px;
+}
+
+.combo-box:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
+
+.combo-box .list-view {
+    -fx-padding: 2px;
+    -fx-border-width: 0.5px;
+    -fx-border-color: black;
+    -fx-background-color: #2e2c2f;
+    -fx-border-radius: 10px 10px 10px 10px;
+    -fx-background-radius: 10px 10px 10px 10px;
+}
+
+.combo-box .list-view .list-cell {
+    -fx-padding: 2px;
+    -fx-border-width: 0.5px;
+    -fx-border-color: black;
+    -fx-background-color: grey;
+    -fx-border-radius: 10px 10px 10px 10px;
+    -fx-background-radius: 10px 10px 10px 10px;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-view .list-cell:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
+
+.radio-button {
+    -fx-text-fill: white;
+}
+
+.radio-button:hover {
+    -fx-background-color: #6c6085;
+    -fx-text-fill: black;
+}
